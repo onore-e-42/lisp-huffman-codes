@@ -93,3 +93,8 @@
 
 (defun leaf-symbol (leaf)
   (car leaf))
+
+
+(defparameter c (list (list 'a 5)(list 2 7)(list 3 10)(list 4 15)(list 5 20)(list 6 45)))
+(defparameter a (list (list 'a 10)(list 'b 2)(list 'c 4)(list 'd 1)(list 'e 23)(list 'f 59)))
+(defparameter z (generate-huffman-tree a)):r
