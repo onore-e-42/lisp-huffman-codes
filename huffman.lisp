@@ -1,25 +1,4 @@
-
-;bits: è una sequenza (lista) di 0 e 1
-;message: è una lista di "simboli" 
-;huffman-tree: è un albero di Huffman
-;symbols-n-weights: è una lista di coppie simbolo-peso (NON una a-list!)
-;symbol-bits-table: è una lista di coppie simbolo-bits
-
-
-(defun flatten (x)
-       (cond ((null x) x)
-             ((atom x) (list x))
-             (T (append (flatten (first x)) (flatten (rest x))))))
-
-
-
-(defun criterion (a b)
-	(if (< (car (cdr a))(car (cdr b)))
-	T
-	nil
-	)
-)
-
+;generate-huffman-tree: generates tree from a list of symbol-weight couples.
 (defun generate-huffman-tree (symbols-n-weights)
 	(if (null (cdr symbols-n-weights))
 		(car symbols-n-weights)
@@ -33,13 +12,26 @@
 				(generate-huffman-tree tree-step))
 		)
 	)				
-)		
+)
+		
+(defun flatten (x)
+       (cond ((null x) x)
+             ((atom x) (list x))
+             (T (append (flatten (first x)) (flatten (rest x))))))
 
+(defun criterion (a b)
+	(if (< (car (cdr a))(car (cdr b)))
+		T
+	nil
+	)
+)
+
+;generate_symbol_bits_table: generates a table of couples consisting of a symbol and its relative code.
 (defun generate-symbol-bits-table (huffman-tree)
 	(let ((symbols (car huffman-tree)))
 		(labels ((generate-symbol-bits-1 (symbols huffman-tree)
 					(unless (null symbols)
-					(cons (cons (car symbols) (encode (list(car symbols)) huffman-tree))
+					(cons (cons (car symbols) (list (encode (list(car symbols)) huffman-tree)))
 					(generate-symbol-bits-1 (cdr symbols) huffman-tree))
 					)
 				))
@@ -48,7 +40,7 @@
 )
 
 
-;output = bits
+;encode: encodes a message in a list of bits following an huffman tree.
 (defun encode (message huffman-tree)
 	(unless (null huffman-tree)
 		(labels ((encode-1 (message current-branch)
@@ -59,7 +51,7 @@
 								(cons 0 (encode-1 message (node-left current-branch))))
 							((member (car message) (flatten(node-right current-branch)))
 								(cons 1 (encode-1 message (node-right current-branch))))
-							((T) (error "carattere non valido"))
+							((T) (error "Invalid character"))
 					)
 				)
 			)
@@ -69,16 +61,15 @@
 )
 
 
-;definire la funzione node-left
 (defun node-left (branch)
 	(car (cdr (car (cdr (cdr branch)))))
 )
 (defun node-right (branch)
 	(car (car (cdr (cdr branch))))
 )
-;definire la funzione node-right
 
-;output = message
+
+;decode: decodes a list of bits into a message following an huffman tree
 (defun decode (bits huffman-tree)
   (labels ((decode-1 (bits current-branch)
 				(unless (null bits)
@@ -88,15 +79,14 @@
 						(decode-1 (rest bits) next-branch)))
 				)
 			))
-           (decode-1 bits huffman-tree)))
+           (decode-1 bits huffman-tree))
+)
 
 (defun choose-branch (bit branch) 
   (cond ((= 0 bit) (node-left branch))
         ((= 1 bit) (node-right branch)) 
         (t (error "Bad bit ~D" bit))))
 
-		
-;se branch è una foglia ritorna T
 (defun leaf-p (branch)
   (cond ((null (cdr (cdr branch))) T)
         (T nil)))
@@ -105,6 +95,6 @@
   (car leaf))
 
 
-(defparameter c (list (list 1 5)(list 2 7)(list 3 10)(list 4 15)(list 5 20)(list 6 45)))
-(defparameter a (list (list 'a 10)(list 'b 2)(list 'c 4)(list 'd 1)))
+(defparameter c (list (list 'a 5)(list 2 7)(list 3 10)(list 4 15)(list 5 20)(list 6 45)))
+(defparameter a (list (list 'a 10)(list 'b 2)(list 'c 4)(list 'd 1)(list 'e 23)(list 'f 59)))
 (defparameter z (generate-huffman-tree a)):r
